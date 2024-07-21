@@ -12,6 +12,35 @@ public class BinomialHeap
 
 	/**
 	 * 
+	 * pre: trees degree is identical and b > a
+	 *
+	 * Link two binomial trees with the same degree
+	 *
+	 */
+	public HeapNode Link(HeapNode thisNode, HeapNode otherNode) {
+		if (thisNode.item.key < otherNode.item.key) {
+			this.LinkHelper(thisNode, otherNode);
+			thisNode.rank += 1;
+			
+			return thisNode;
+		}
+		else {
+			this.LinkHelper(otherNode, thisNode);
+			otherNode.rank += 1;
+			
+			return otherNode;
+		}
+	}
+	
+	public void LinkHelper(HeapNode a, HeapNode b) {
+		b.next = a.child.next;
+		a.child.next = b;
+		b.parent = a;
+		a.child = b;
+	}
+	
+	/**
+	 * 
 	 * pre: key > 0
 	 *
 	 * Insert (key,info) into the heap and return the newly generated HeapItem.
@@ -71,8 +100,99 @@ public class BinomialHeap
 	 *
 	 */
 	public void meld(BinomialHeap heap2)
-	{
-		return; // should be replaced by student code   		
+	{		
+		HeapNode thisNode = this.last.next;
+		HeapNode otherNode = heap2.last.next;
+		
+		// Iterate over ranks of minimal degree tree
+		for (int i = 0; i <= Math.min(this.last.rank, heap2.last.rank); i++) {
+			HeapNode carry = new HeapNode();
+			HeapNode append = new HeapNode();
+			
+			if (thisNode.rank == i || otherNode.rank == i) {
+				// Two trees with the same degree (i)
+				if (thisNode.rank == otherNode.rank) {
+					if (carry.rank == -1) {
+						carry = Link(thisNode, otherNode);
+					}
+					
+					else { // Three trees with the same degree (i)
+						if (thisNode.item.key <= otherNode.item.key 
+								&& thisNode.item.key <= carry.item.key) {
+							HeapNode tmpCarry = Link(otherNode, carry);
+							if (append.rank != -1) {
+								append.next = thisNode;
+							}
+							append = thisNode;
+							carry = tmpCarry;
+						}
+						
+						if (otherNode.item.key <= thisNode.item.key 
+								&& otherNode.item.key <= carry.item.key) {
+							HeapNode tmpCarry = Link(thisNode, carry);
+							if (append.rank != -1) {
+								append.next = otherNode;
+							}
+							append = otherNode;
+							carry = tmpCarry;
+						}
+						
+						if (carry.item.key <= thisNode.item.key 
+								&& carry.item.key <= otherNode.item.key) {
+							HeapNode tmpCarry = Link(thisNode, otherNode);
+							if (append.rank != -1) {
+								append.next = carry;
+							}
+							append = carry;
+							carry = tmpCarry;
+						}
+					}
+					
+					thisNode = thisNode.next;
+					otherNode = otherNode.next;
+				}
+				else {
+					// One tree degree i (thisNode)
+					if (thisNode.rank == i) {
+						if (carry.rank != -1) {
+							carry = Link(carry, thisNode);
+						}
+						
+						else {
+							if (append.rank != -1) {
+								append.next = thisNode;
+							}
+							append = thisNode;
+						}
+						thisNode = thisNode.next;
+					}
+					// One tree degree i (otherNode)
+					else {
+						if (carry.rank != -1) {
+							carry = Link(carry, otherNode);
+						}
+						
+						else {
+							if (append.rank != -1) {
+								append.next = otherNode;
+							}
+							append = otherNode;
+						}
+						otherNode = otherNode.next;
+					}
+				}
+			}
+			
+			else { // Non of the trees have degree i
+				if (carry.rank != -1) {
+					if (append.rank != -1) {
+						append.next = carry;
+					}
+					append = carry;
+				}
+			}
+		}
+		return;    		
 	}
 
 	/**
@@ -116,6 +236,23 @@ public class BinomialHeap
 		public HeapNode next;
 		public HeapNode parent;
 		public int rank;
+		
+		public HeapNode(HeapItem item, HeapNode next, HeapNode parent, int rank) {
+			this.item = item;
+			this.child = null;
+			this.next = next;
+			this.parent = parent;
+			this.rank = rank;
+		}
+		
+		public HeapNode() {
+			this.item = null;
+			this.child = null;
+			this.next = null;
+			this.parent = null;
+			this.rank = -1;
+		}
+		
 	}
 
 	/**
@@ -126,5 +263,11 @@ public class BinomialHeap
 		public HeapNode node;
 		public int key;
 		public String info;
+		
+		public HeapItem(HeapNode node, int key, String info) {
+			this.node = node;
+			this.key  = key;
+			this.info = info;
+		}
 	}
 }
