@@ -101,97 +101,132 @@ public class BinomialHeap
 	 */
 	public void meld(BinomialHeap heap2)
 	{		
-		HeapNode thisNode = this.last.next;
-		HeapNode otherNode = heap2.last.next;
+		HeapNode carry = null;
+		HeapNode[] roots = new HeapNode[Math.max(this.last.rank, heap2.last.rank)+1];
+		HeapNode bigHeapPointer;
+		HeapNode smallHeapPointer;
+
+		if (Math.max(this.last.rank, heap2.last.rank) == this.last.rank) {
+			bigHeapPointer = this.last.next;
+			smallHeapPointer = heap2.last.next;
+		}
+		
+		else {
+			smallHeapPointer = this.last.next;
+			bigHeapPointer = heap2.last.next;
+		}
 		
 		// Iterate over ranks of minimal degree tree
 		for (int i = 0; i <= Math.min(this.last.rank, heap2.last.rank); i++) {
-			HeapNode carry = new HeapNode();
-			HeapNode append = new HeapNode();
-			
-			if (thisNode.rank == i || otherNode.rank == i) {
+			if (bigHeapPointer.rank == i || smallHeapPointer.rank == i) {
 				// Two trees with the same degree (i)
-				if (thisNode.rank == otherNode.rank) {
-					if (carry.rank == -1) {
-						carry = Link(thisNode, otherNode);
+				if (bigHeapPointer.rank == smallHeapPointer.rank) {
+					if (carry == null) {
+						carry = Link(bigHeapPointer, smallHeapPointer);
 					}
 					
 					else { // Three trees with the same degree (i)
-						if (thisNode.item.key <= otherNode.item.key 
-								&& thisNode.item.key <= carry.item.key) {
-							HeapNode tmpCarry = Link(otherNode, carry);
-							if (append.rank != -1) {
-								append.next = thisNode;
-							}
-							append = thisNode;
+						if (bigHeapPointer.item.key <= smallHeapPointer.item.key 
+								&& bigHeapPointer.item.key <= carry.item.key) {
+							HeapNode tmpCarry = Link(smallHeapPointer, carry);
+							roots[i] = bigHeapPointer;
 							carry = tmpCarry;
 						}
 						
-						if (otherNode.item.key <= thisNode.item.key 
-								&& otherNode.item.key <= carry.item.key) {
-							HeapNode tmpCarry = Link(thisNode, carry);
-							if (append.rank != -1) {
-								append.next = otherNode;
-							}
-							append = otherNode;
+						if (smallHeapPointer.item.key <= bigHeapPointer.item.key 
+								&& smallHeapPointer.item.key <= carry.item.key) {
+							HeapNode tmpCarry = Link(bigHeapPointer, carry);
+							roots[i] = smallHeapPointer;
 							carry = tmpCarry;
 						}
 						
-						if (carry.item.key <= thisNode.item.key 
-								&& carry.item.key <= otherNode.item.key) {
-							HeapNode tmpCarry = Link(thisNode, otherNode);
-							if (append.rank != -1) {
-								append.next = carry;
-							}
-							append = carry;
+						if (carry.item.key <= bigHeapPointer.item.key 
+								&& carry.item.key <= smallHeapPointer.item.key) {
+							HeapNode tmpCarry = Link(bigHeapPointer, smallHeapPointer);
+							roots[i] = carry;
 							carry = tmpCarry;
 						}
 					}
 					
-					thisNode = thisNode.next;
-					otherNode = otherNode.next;
+					bigHeapPointer = bigHeapPointer.next;
+					smallHeapPointer = smallHeapPointer.next;
 				}
+				
 				else {
-					// One tree degree i (thisNode)
-					if (thisNode.rank == i) {
-						if (carry.rank != -1) {
-							carry = Link(carry, thisNode);
+					// One tree degree i (bigHeapPointer)
+					if (bigHeapPointer.rank == i) {
+						if (carry != null) {
+							carry = Link(carry, bigHeapPointer);
 						}
 						
 						else {
-							if (append.rank != -1) {
-								append.next = thisNode;
-							}
-							append = thisNode;
+							roots[i] = bigHeapPointer;	
 						}
-						thisNode = thisNode.next;
+						bigHeapPointer = bigHeapPointer.next;
 					}
-					// One tree degree i (otherNode)
+					// One tree degree i (smallHeapPointer)
 					else {
-						if (carry.rank != -1) {
-							carry = Link(carry, otherNode);
+						if (carry != null) {
+							carry = Link(carry, smallHeapPointer);
 						}
 						
 						else {
-							if (append.rank != -1) {
-								append.next = otherNode;
+							roots[i] = smallHeapPointer;
 							}
-							append = otherNode;
 						}
-						otherNode = otherNode.next;
+						smallHeapPointer = smallHeapPointer.next;
 					}
 				}
-			}
 			
 			else { // Non of the trees have degree i
-				if (carry.rank != -1) {
-					if (append.rank != -1) {
-						append.next = carry;
-					}
-					append = carry;
+				if (carry != null) {
+					roots[i] = carry;
+					carry = null;
 				}
 			}
 		}
+		
+		// Small heap is finished. insert the rest of big heap items
+		// Carry exists
+		int j = Math.min(this.last.rank, heap2.last.rank) + 1;
+		
+		if (carry != null) {
+			// while a tree with degree j exists and tree is not the last tree in stack
+			while (bigHeapPointer.rank == j ) {
+				carry = Link(bigHeapPointer, carry);
+				j++;
+				if (bigHeapPointer.rank < Math.max(this.last.rank, heap2.last.rank)) {
+					bigHeapPointer = bigHeapPointer.next;}
+				else {break;}
+			}
+			roots[j] = carry; // carry will not be used anymore
+		}
+		
+		// No more carry. Just insert the rest of big stack trees as is
+		for (int k = j + 1; k <= Math.max(this.last.rank, heap2.last.rank); k++) {
+			if (k == bigHeapPointer.rank) {
+				roots[k] = bigHeapPointer;
+				bigHeapPointer = bigHeapPointer.next;
+			}	
+		}
+		
+		int curr = 1;
+		HeapNode prev = roots[0];
+		this.size = (int) Math.pow(2 , roots[0].rank); 
+		this.min = roots[0];
+		
+		while (roots[curr] != null) {
+			prev.next = roots[curr];
+			this.last = roots[curr];
+			this.size += (int) Math.pow(2 , roots[curr].rank);
+			
+			if (this.min.item.key > roots[curr].item.key) {
+				this.min = roots[curr];
+			}
+				
+			curr += 1;
+		}
+		
 		return;    		
 	}
 
