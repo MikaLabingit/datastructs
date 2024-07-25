@@ -47,8 +47,25 @@ public class BinomialHeap
 	 *
 	 */
 	public HeapItem insert(int key, String info) 
-	{    
-		return; // should be replaced by student code
+	{
+		HeapItem item = new HeapItem();
+		item.key = key;
+		item.info = info;
+		
+		HeapNode node = new HeapNode();
+		node.item = item;
+		item.node = node;
+		node.next = node;
+		
+		BinomialHeap heap2 = new BinomialHeap();
+		heap2.last = node;
+		heap2.size = 1;
+		heap2.min = node;
+		
+		// Meld 
+		this.meld(heap2);
+		
+		return item; 
 	}
 
 	/**
@@ -101,6 +118,16 @@ public class BinomialHeap
 	 */
 	public void meld(BinomialHeap heap2)
 	{		
+		// Empty heap
+		if (this.size == 0) {
+			this.last = heap2.last;
+			this.last.next = this.last;
+			this.min = heap2.min;
+			this.size = heap2.size;
+			
+			return;
+		}
+		
 		HeapNode carry = null;
 		HeapNode[] roots = new HeapNode[Math.max(this.last.rank, heap2.last.rank)+1];
 		HeapNode bigHeapPointer;
@@ -226,6 +253,7 @@ public class BinomialHeap
 				
 			curr += 1;
 		}
+		roots[curr -1].next = roots[0];
 		
 		return;    		
 	}
@@ -271,23 +299,7 @@ public class BinomialHeap
 		public HeapNode next;
 		public HeapNode parent;
 		public int rank;
-		
-		public HeapNode(HeapItem item, HeapNode next, HeapNode parent, int rank) {
-			this.item = item;
-			this.child = null;
-			this.next = next;
-			this.parent = parent;
-			this.rank = rank;
-		}
-		
-		public HeapNode() {
-			this.item = null;
-			this.child = null;
-			this.next = null;
-			this.parent = null;
-			this.rank = -1;
-		}
-		
+	
 	}
 
 	/**
@@ -299,10 +311,13 @@ public class BinomialHeap
 		public int key;
 		public String info;
 		
-		public HeapItem(HeapNode node, int key, String info) {
-			this.node = node;
-			this.key  = key;
-			this.info = info;
-		}
+	}
+	
+	public static void main(String[] args) {
+		BinomialHeap heap = new BinomialHeap();
+		heap.insert(0, "Mika");
+		System.out.println(heap.last.next.item.info);
+		heap.insert(1, "Hadas");
+		System.out.println(heap.size + " " + heap.min.item.key + " " + heap.last.item.info);
 	}
 }
