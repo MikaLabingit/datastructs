@@ -34,9 +34,9 @@ public class BinomialHeap
 	}
 	
 	public void LinkHelper(HeapNode a, HeapNode b) {
-		if (b.next != b) {
-			a.next = b.next;
-		}
+//		if (b.next != b) {
+//			a.next = b.next;
+//		}
 		if (a.child != null) {
 			b.next = a.child.next;
 			a.child.next = b;
@@ -79,80 +79,73 @@ public class BinomialHeap
 	 * Delete the minimal item
 	 *
 	 */
-	public void deleteMin()
-	{
-
-		
+	public void deleteMin() {
 		HeapNode minNode = this.min;
-		// disconnect min from heap
-		HeapNode node = this.last;
-		while (node.next != minNode ) {
-			node = node.next;
-		}
-		node.next = minNode.next;
-		
-		// Last was the minimum - change last to be previous node 
-		// singled node tree will be handled later
-		if(this.last==this.min){
-			this.last = node;
-		}
-		// Size will be update inside Meld
-		
-		
-		// Node has children - Meld is needed
-		if (minNode.child != null) {
-			if (minNode == minNode.next) {// have children but a single root
-				this.last = minNode.child;
-				this.min = this.last;
-				HeapNode tempNode = this.last.next;
-				this.numTrees = 1;
-				while (tempNode != this.last) {
-					if (tempNode.item.key < this.min.item.key) {
-						this.min = tempNode;
-					}
-					tempNode = tempNode.next;
-					this.numTrees += 1;
-				}
-				
-			}
-			else {
-				// create temp heap for min children
-				BinomialHeap heap2 = new BinomialHeap();
-				heap2.last = minNode.child;
-				this.meld(heap2);
-			}
-		}
-		
-		// 	Node has no children. Manually update heap values
-		else {
-			this.size = this.size -1;
-			
-			// New heap is empty
-			if (this.size == 0) {
+
+		// Single root
+		if (minNode == minNode.next) {
+			// Single node
+			if (this.size == 1) {
 				this.last = null;
 				this.min = null;
 				this.numTrees = 0;
+				this.size = 0;
+				return;
 			}
-			
-			// Heap is not empty - find minimum node and fix numTrees val
-			else {
-				this.min = this.last;
-				HeapNode tempNode = this.last.next;
-				this.numTrees = 1;
-				while (tempNode != this.last) {
-					if (tempNode.item.key < this.min.item.key) {
-						this.min = tempNode;
-					}
-					tempNode = tempNode.next;
-					this.numTrees += 1;
+			// Single root with children
+			else { //
+				this.last = minNode.child;
+				// Update parent to be null
+				HeapNode newRoot = this.last;
+				while (newRoot.parent != null) {
+					newRoot.parent = null;
+					newRoot = newRoot.next;
 				}
 			}
 		}
-			
-		
-		
-		return; // should be replaced by student code
+		// Multiple roots
+		else {
+			// Disconnect min from heap
+			HeapNode node = this.last;
+			while (node.next != minNode) {
+				node = node.next;
+			}
+			node.next = minNode.next;
 
+			// Last was the minimum - change last to be previous node
+			if (this.last == this.min) {
+				this.last = node;
+			}
+
+			// Min node has children
+			if (minNode.child != null) {
+				BinomialHeap heap2 = new BinomialHeap(); // Create temp heap for min children
+				heap2.last = minNode.child;
+				// Update parent to be null
+				HeapNode newRoot = heap2.last;
+				while (newRoot.parent != null) {
+					newRoot.parent = null;
+					newRoot = newRoot.next;
+				}
+				this.meld(heap2);
+				return;
+			}
+		}
+
+		// Min node has no children || node is a single root
+		this.size -= 1;
+		this.min = this.last;
+		HeapNode tempNode = this.last.next;
+		this.numTrees = 1;
+		while (tempNode != this.last) {
+			if (tempNode.item.key < this.min.item.key) {
+				this.min = tempNode;
+			}
+			tempNode = tempNode.next;
+			this.numTrees += 1;
+		}
+
+		return;
 	}
 
 	/**
