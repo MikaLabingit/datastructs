@@ -1,5 +1,12 @@
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import BinomialHeapTest.TestHeap;
+
 /**
  * BinomialHeap
  *
@@ -12,6 +19,8 @@ public class BinomialHeap
 	public HeapNode last;
 	public HeapNode min;
 	public int numTrees;
+	public int link_counter = 0; 
+	public int deleted_ranks = 0;
 
 	/**
 	 * 
@@ -21,6 +30,7 @@ public class BinomialHeap
 	 *
 	 */
 	public HeapNode Link(HeapNode thisNode, HeapNode otherNode) {
+		this.link_counter += 1;
 		if (thisNode.item.key < otherNode.item.key) {
 			this.LinkHelper(thisNode, otherNode);
 			thisNode.rank += 1;
@@ -88,7 +98,7 @@ public class BinomialHeap
 	 */
 	public void deleteMin() {
 		HeapNode minNode = this.min;
-
+		this.deleted_ranks += minNode.rank;
 		// Single root
 		if (minNode == minNode.next) {
 			// Single node
@@ -614,513 +624,190 @@ public class BinomialHeap
 	public static void main(String[] args) {
 		
 		
-		 BinomialHeap heap = new BinomialHeap();
+		
+		 System.out.print("first expiriment: big to small ");
+		 System.out.print("\n");
+		 for (int i = 1; i <= 5; i++){
+			 BinomialHeap heap = new BinomialHeap();
+	           
+	            int n = (int)Math.pow(3, i + 7)-1;
+	            long start = System.currentTimeMillis();
+	            for (int j=0; j<=n-1; j++){
+	                heap.insert(n-j, Integer.toString(n-j));
+	            }
+	            long end = System.currentTimeMillis();
+	            long elapsedTime = end - start;
+	            System.out.print("i =  ");
+	            System.out.print(i);
+	            System.out.print(", Num of Trees: ");
+	            System.out.print(heap.numTrees());
+	            System.out.print(", Elapsed Time (ms): ");
+	            System.out.print(elapsedTime);
+	            System.out.print(", num of links: ");
+	            System.out.print(heap.link_counter);
+	            System.out.print(", sum of ranks: ");
+	            System.out.print(heap.deleted_ranks);
+	            System.out.print("\n");
 
-	        // Insert elements
-	        heap.insert(2, "A");
-	        System.out.println(heap.size + " " + heap.min.item.key + "  " + heap.last.item.key );
-	        heap.insert(3, "a");
-	        System.out.println(heap.size + " " + heap.min.item.key + "  " + heap.last.item.key );
-	        heap.insert(9, "a");
-	        System.out.println(heap.size + " " + heap.min.item.key + "  " + heap.last.item.key );
-	        heap.insert(4, "a");
-	        System.out.println(heap.size + " " + heap.min.item.key + "  " + heap.last.item.key );
-	        heap.insert(15, "a");
-	        System.out.println(heap.size + " " + heap.min.item.key + "  " + heap.last.item.key );
-	        heap.insert(8, "a");
-	        System.out.println(heap.size + " " + heap.min.item.key + "  " + heap.last.item.key );
-	        heap.insert(10, "a");
-	        System.out.println(heap.size + " " + heap.min.item.key + "  " + heap.last.item.key );
-	        heap.insert(11, "a");
-	        System.out.println(heap.size + " " + heap.min.item.key + "  "+ heap.last.item.key );
-	        //heap.deleteMin();
-	        //System.out.println("del");
+	        }
+		 System.out.print("finished 1");
+		 System.out.print("\n");
+		 
+		 
+		 System.out.print("first expiriment - small to big: ");
+		 System.out.print("\n");
+		 for (int i = 1; i <= 5; i++){
+			 BinomialHeap heap = new BinomialHeap();
+	           
+	            int n = (int)Math.pow(3, i + 7)-1;
+	            long start = System.currentTimeMillis();
+	            for (int j=1; j<=n; j++){
+	                heap.insert(j, Integer.toString(j));
+	            }
+	            long end = System.currentTimeMillis();
+	            long elapsedTime = end - start;
+	            System.out.print("i =  ");
+	            System.out.print(i);
+	            System.out.print(", Num of Trees: ");
+	            System.out.print(heap.numTrees());
+	            System.out.print(", Elapsed Time (ms): ");
+	            System.out.print(elapsedTime);
+	            System.out.print(", num of links: ");
+	            System.out.print(heap.link_counter);
+	            System.out.print(", sum of ranks: ");
+	            System.out.print(heap.deleted_ranks);
+	            System.out.print("\n");
+
+	        }
+		 System.out.print("finished 1.5");
+		 System.out.print("\n");
+		 
+		 System.out.print("seconde expiriment: ");
+		 System.out.print("\n");
+		 System.out.print("\n");
+		 
+		 for (int i = 1; i <= 5; i++){
+			 BinomialHeap heap = new BinomialHeap();
+	           
+			 int n = (int)Math.pow(3, i + 7)-1;
+	         List<Integer> nums = new ArrayList<>();
+
+	         for (int j=1; j<=n; j++){
+	             nums.add(j);
+	         }
+
+	  
+	         int sumRunkDeleted = 0;
+	         Collections.shuffle(nums);
+	         long start = System.currentTimeMillis();
+	         for (int j=0; j<=n-1; j++){
+	             heap.insert(nums.get(j), Integer.toString(nums.get(j)));
+	         }
+	         for (int j=0; j<=n/2; j++){
+	             sumRunkDeleted += heap.findMin().node.rank;
+	             heap.deleteMin();
+	         }
+
+	         long end = System.currentTimeMillis();
+	         long elapsedTime = end - start;
+	            System.out.print("i =  ");
+	            System.out.print(i);
+	            System.out.print(", Num of Trees: ");
+	            System.out.print(heap.numTrees());
+	            System.out.print(", Elapsed Time (ms): ");
+	            System.out.print(elapsedTime);
+	            System.out.print(", num of links: ");
+	            System.out.print(heap.link_counter);
+	            System.out.print(", sum of ranks: ");
+	            System.out.print(heap.deleted_ranks);
+	
+	            System.out.print("\n");
+
+	        }
+		 System.out.print("finished 2");
+		 System.out.print("\n");
+		 System.out.print("third expiriment big to small: ");
+		 System.out.print("\n");
+		 System.out.print("\n");
+		 
+		 
+		 for (int i = 1; i <= 5; i++){
+			 BinomialHeap heap = new BinomialHeap();
+	           
+			 int n = (int)Math.pow(3, i + 7)-1;
+
+         long start = System.currentTimeMillis();
+         for (int j=0; j<=n-1; j++){
+             heap.insert(n-j, Integer.toString(n-j));
+         }
+         while (heap.size() != Math.pow(2,5) -1){
+             heap.deleteMin();
+         }
+         long end = System.currentTimeMillis();
+         long elapsedTime = end - start;
+         System.out.print("i =  ");
+         System.out.print(i);
+         System.out.print(", Num of Trees: ");
+         System.out.print(heap.numTrees());
+         System.out.print(", Elapsed Time (ms): ");
+         System.out.print(elapsedTime);
+         System.out.print(", num of links: ");
+         System.out.print(heap.link_counter);
+         System.out.print(", sum of ranks: ");
+         System.out.print(heap.deleted_ranks);
+         System.out.print("\n");
+         
+		 }
+		 
+		 System.out.print("\n");
+		 System.out.print("finished 3");
+		 
+		 
+		 System.out.print("third expiriment  small to big: ");
+		 System.out.print("\n");
+		 System.out.print("\n");
+		 
+		 
+		 for (int i = 1; i <= 5; i++){
+			 BinomialHeap heap = new BinomialHeap();
+	           
+			 int n = (int)Math.pow(3, i + 7)-1;
+
+         long start = System.currentTimeMillis();
+         for (int j=1; j<=n; j++){
+             heap.insert(j, Integer.toString(j));
+         }
+         while (heap.size() != Math.pow(2,5) -1){
+             heap.deleteMin();
+         }
+         long end = System.currentTimeMillis();
+         long elapsedTime = end - start;
+         System.out.print("i =  ");
+         System.out.print(i);
+         System.out.print(", Num of Trees: ");
+         System.out.print(heap.numTrees());
+         System.out.print(", Elapsed Time (ms): ");
+         System.out.print(elapsedTime);
+         System.out.print(", num of links: ");
+         System.out.print(heap.link_counter);
+         System.out.print(", sum of ranks: ");
+         System.out.print(heap.deleted_ranks);
+         System.out.print("\n");
+         
+		 }
+		 
+		 System.out.print("\n");
+		 System.out.print("finished 3.5");
+		 System.out.print("\n");
+		 System.out.print("finished all!");
+
+		 
+		 
+		 
+		 
+
+         
+         
 	}}
-//		 BinomialHeap heap = new BinomialHeap();
-//
-//	        // Insert elements
-//	        heap.insert(10, "A");
-//	        heap.insert(6, "B");
-//	        heap.insert(12, "C");
-//	        heap.insert(4, "D");
-//
-//	        // Verify size and findMin
-//	        if (heap.size() == 4) {
-//	            System.out.println("Test 1 passed");
-//	            
-//	        } else {
-//	            System.out.println("Test 1 failed");
-//	        }
-//	        if (heap.findMin().key == 4) {
-//	            System.out.println("Test 2 passed");
-//	            
-//	        } else {
-//	            System.out.println("Test 2 failed");
-//	        }
-//	       
-//
-//	        // Delete the minimum
-//	        heap.deleteMin();
-//
-//	        // Verify size and findMin after deletion
-//	    
-//	        
-//	        if (heap.size() == 3) {
-//	            System.out.println("Test 3 passed");
-//	            
-//	        } else {
-//	            System.out.println("Test 3 failed");
-//	        }
-//	        if (heap.findMin().key == 6) {
-//	            System.out.println("Test 4 passed");
-//	            
-//	        } else {
-//	            System.out.println("Test 4 failed");
-//	        }
-//	       
-//
-//	        // Insert more elements
-//	        heap.insert(7, "E");
-//	        heap.insert(2, "F");
-//	        
-//	        if (heap.size() == 5) {
-//	            System.out.println("Test 5 passed");
-//	            
-//	        } else {
-//	            System.out.println("Test 5 failed");
-//	        }
-//	        if (heap.findMin().key == 2) {
-//	            System.out.println("Test 6 passed");
-//	            
-//	        } else {
-//	            System.out.println("Test 6 failed");
-//	        }
-//	}}
-//		BinomialHeap heap = new BinomialHeap();
-//        int score = 0;
-
-//        heap.insert(5, "Hi");
-//        if (heap.size() == 1) {
-//            System.out.println("Test 1 passed");
-//            score += 5;
-//        } else {
-//            System.out.println("Test 1 failed");
-//        }
-//        if (heap.findMin().key == 5) {
-//            System.out.println("Test 2 passed");
-//            score += 5;
-//        } else {
-//            System.out.println("Test 2 failed");
-//        }
-//
-//        heap.insert(3, "Tomer");
-//        if (heap.size() == 2) {
-//            System.out.println("Test 3 passed");
-//            score += 5;
-//        } else {
-//            System.out.println("Test 3 failed");
-//        }
-//        if (heap.findMin().key == 3) {
-//            System.out.println("Test 4 passed");
-//            score += 5;
-//        } else {
-//            System.out.println("Test 4 failed");
-//        }
-//
-//        heap.insert(8, "Harel");
-//        if (heap.size() == 3) {
-//            System.out.println("Test 5 passed");
-//            score += 5;
-//        } else {
-//            System.out.println("Test 5 failed");
-//        }
-//        if (heap.findMin().key == 3) {
-//            System.out.println("Test 6 passed");
-//            score += 5;
-//        } else {
-//            System.out.println("Test 6 failed");
-//        }
-//
-//        // Additional insertions
-//        heap.insert(1, "Alice");
-//        if (heap.size() == 4) {
-//            System.out.println("Test 7 passed");
-//            score += 5;
-//        } else {
-//            System.out.println("Test 7 failed");
-//        }
-//        if (heap.findMin().key == 1) {
-//            System.out.println("Test 8 passed");
-//            score += 5;
-//        } else {
-//            System.out.println("Test 8 failed");
-//        }
-//
-//        heap.insert(7, "Bob");
-//        if (heap.size() == 5) {
-//            System.out.println("Test 9 passed");
-//            score += 5;
-//        } else {
-//            System.out.println("Test 9 failed");
-//        }
-//        if (heap.findMin().key == 1) {
-//            System.out.println("Test 10 passed");
-//            score += 5;
-//        } else {
-//            System.out.println("Test 10 failed");
-//        }
-//
-//        // Add more insert tests as needed
-//
-//        System.out.println("Total score: " + score);
-//        
-       // int score = 0;
-//        BinomialHeap binomialHeap = new BinomialHeap();
-//        // Test 1: Insert elements
-//        try {
-//            binomialHeap.insert(10, "Ten");
-//            binomialHeap.insert(4, "Four");
-//            binomialHeap.insert(15, "Fifteen");
-//            binomialHeap.insert(20, "Twenty");
-//            binomialHeap.insert(8, "Eight");
-//            System.out.println("Test 1 passed");
-//            score += 5;
-//        } catch (Exception e) {
-//            System.out.println("Test 1 failed");
-//        }
-//
-//        // Test 2: Check size
-//        if (binomialHeap.size() == 5) {
-//            System.out.println("Test 2 passed");
-//            score += 5;
-//        } else {
-//            System.out.println("Test 2 failed");
-//        }
-//
-////        // Test 3: Check findMin
-//        if (binomialHeap.findMin().key == 4) {
-//            System.out.println("Test 3 passed");
-//            score += 5;
-//        } else {
-//            System.out.println("Test 3 failed");
-//        }
-////
-////        // Test 4: Check deleteMin
-//        try {
-//            binomialHeap.deleteMin();
-//            if (binomialHeap.findMin().key == 8) {
-//                System.out.println("Test 4 passed");
-//                score += 5;
-//            } else {
-//                System.out.println("Test 4 failed");
-//            }
-//        } catch (Exception e) {
-//            System.out.println("Test 4 failed");
-//        }
-//        
-//        int numTrees = binomialHeap.numTrees();
-//        System.out.println("Number of trees (sup 1 ) : " + numTrees);
-//
-//        // Test 5: Insert more elements
-//        try {
-//            binomialHeap.insert(3, "Three");
-//            binomialHeap.insert(12, "Twelve");
-//            System.out.println("Test 5 passed");
-//            score += 5;
-//        } catch (Exception e) {
-//            System.out.println("Test 5 failed");
-//        }
-//         numTrees = binomialHeap.numTrees();
-//        System.out.println("Number of trees (sup 2 ) : " + numTrees);
-//
-//        // Test 6: Check size again
-//        if (binomialHeap.size() == 6) {
-//            System.out.println("Test 6 passed");
-//            score += 5;
-//        } else {
-//            System.out.println("Test 6 failed");
-//        }
-//
-////        // Test 7: Check decreaseKey
-//      
-//        try {
-//            HeapItem item = binomialHeap.insert(18, "Eighteen");
-//            binomialHeap.decreaseKey(item, 17);
-//            if (binomialHeap.findMin().key == 1) {
-//                System.out.println("Test 7 passed");
-//                score += 5;
-//            } else {
-//                System.out.println("Test 7 failed");
-//            }
-//        } catch (Exception e) {
-//            System.out.println("Test 7e failed");
-//        }
-//         numTrees = binomialHeap.numTrees();
-//        System.out.println("Number of trees (sup 3 ) : " + numTrees);
-//
-//       
-//        try {
-//            HeapItem item = binomialHeap.findMin();
-//            binomialHeap.delete(item);
-//            if (binomialHeap.findMin().key != 1) {
-//                System.out.println("Test 8 passed");
-//                score += 5;
-//            } else {
-//                System.out.println("Test 8 failed");
-//            }
-//        } catch (Exception e) {
-//            System.out.println("Test e8 failed");
-//        }
-//        numTrees = binomialHeap.numTrees();
-//        System.out.println("Number of trees (sup 2 ) : " + numTrees);
-//
-//
-////        // Test 9: Check empty
-//        if (!binomialHeap.empty()) {
-//            System.out.println("Test 9 passed");
-//            score += 5;
-//        } else {
-//            System.out.println("Test 9 failed");
-//        }
-////
-////     // Test 10: Meld two heaps
-//        try {
-//            BinomialHeap binomialHeap2 = new BinomialHeap();
-//            if (binomialHeap2.empty()) {
-//                System.out.println("empty is working");}
-//            binomialHeap2.insert(5, "Five");
-//            binomialHeap2.deleteMin();
-//            if (binomialHeap2.empty()) {
-//            	System.out.println("empty is working again ");}
-//        	binomialHeap2.insert(5, "Five");
-//            binomialHeap2.insert(25, "Twenty-five");
-//            binomialHeap.meld(binomialHeap2);
-//            numTrees = binomialHeap.numTrees();
-//            System.out.println("Number of trees (sup 1 ) : " + numTrees);
-//
-//            if (binomialHeap.size() == 8 && binomialHeap.findMin().key == 3) {
-//                System.out.println("Test 10 passed");
-//                score += 5;
-//            } else {
-//                System.out.println("Test 10 failed");
-//            }
-//        } catch (Exception e) {
-//            System.out.println("Test 10 failed");
-//        }
-////        
-////        // Test 11: Check numtrees
-//        try {
-//             numTrees = binomialHeap.numTrees();
-//            System.out.println("Number of trees: " + numTrees);
-//            score += 5; // Assume correct implementation, adjust based on actual implementation
-//        } catch (Exception e) {
-//            System.out.println("Test 11 failed");
-//        }
-//
-//        // Test 12: Check size after meld
-//        if (binomialHeap.size() == 8) {
-//            System.out.println("Test 12 passed");
-//            score += 5;
-//        } else {
-//            System.out.println("Test 12 failed");
-//        }
-//
-////        
-////        // Test 13: Insert another element
-//        try {
-//            binomialHeap.insert(1, "One");
-//            if (binomialHeap.findMin().key == 1) {
-//                System.out.println("Test 13 passed");
-//                score += 5;
-//            } else {
-//                System.out.println("Test 13 failed");
-//            }
-//        } catch (Exception e) {
-//            System.out.println("Test 13 failed");
-//        }
-////        
-////        
-////        // Test 14: Check decreaseKey on non-existent item
-//        try {
-//            HeapItem fakeItem = new HeapItem();
-//            fakeItem.key=100;
-//            fakeItem.info="Fake";
-//            fakeItem.node = null;
-//            
-//            binomialHeap.decreaseKey(fakeItem, 10);
-//            System.out.println("Test 14 failed");
-//        } catch (Exception e) {
-//            System.out.println("Test 14 passed");
-//            score += 5;
-//        }
-//
-//        try {
-//            BinomialHeap emptyHeap = new BinomialHeap();
-//            emptyHeap.deleteMin();
-//            System.out.println("Test 15 failed");
-//        } catch (Exception e) {
-//            System.out.println("Test 15 passed");
-//            score += 5;
-//        }
-//       
-//        try {
-//            BinomialHeap emptyHeap = new BinomialHeap();
-//            if (emptyHeap.findMin() == null) {
-//                System.out.println("Test 16 passed");
-//                score += 5;
-//            } else {
-//                System.out.println("Test 16 failed");
-//            }
-//        } catch (Exception e) {
-//            System.out.println("Test e16 failed");
-//        }
-//
-////     // Test 17: Insert an item, delete it, and check heap properties
-//        try {
-//            int initialSize = binomialHeap.size();
-//            HeapItem itemToDelete = binomialHeap.insert(18, "Eighteen");
-//            if (binomialHeap.size() == initialSize + 1) {
-//                binomialHeap.delete(itemToDelete);
-//                if (binomialHeap.size() == initialSize && binomialHeap.findMin().key == 1) {
-//                    System.out.println("Test 17 passed");
-//                    score += 5;
-//                } else {
-//                    System.out.println("Test 17 failed after deletion");
-//                }
-//            } else {
-//                System.out.println("Test 17 failed after insertion");
-//            }
-//        } catch (Exception e) {
-//            System.out.println("Test 17 failed");
-//        }
-//
-//        // Test 18: Check min after multiple operations
-//        if (binomialHeap.findMin().key == 1) {
-//            System.out.println("Test 18 passed");
-//            score += 5;
-//        } else {
-//            System.out.println("Test 18 failed");
-//        }
-//        // Test 19: Check size after multiple operations
-//        if (binomialHeap.size() == 9) { // Adjust based on actual operations and expected size
-//            System.out.println("Test 19 passed");
-//            score += 5;
-//        } else {
-//            System.out.println("Test 19 failed");
-//        }
-//
-//        // Test 20: Check empty after multiple operations
-//        if (!binomialHeap.empty()) {
-//            System.out.println("Test 20 passed");
-//            score += 5;
-//        } else {
-//            System.out.println("Test 20 failed");
-//        }
-//
-//        // Print final score
-//        System.out.println("Final Score: " + score + "/100");
-//    }
-  //  }
-//	public static void main(String[] args) {
-//		BinomialHeap heap = new BinomialHeap();
-//		
-//	    heap.insert(3, "Mika");
-//	    System.out.println("Inserted: 3 Mika, Size: " + heap.size + ", Min: " + (heap.min != null ? heap.min.item.key : "null") + ", Last: " + (heap.last != null ? heap.last.item.info : "null"));
-//	    
-//	    heap.insert(17, "Hadas");
-//	    System.out.println("Inserted: 17 Hadas, Size: " + heap.size + ", Min: " + (heap.min != null ? heap.min.item.key : "null") + ", Last: " + (heap.last != null ? heap.last.item.info : "null"));
-//	    
-//	    heap.insert(1, "Shaked");
-//	    System.out.println("Inserted: 1 Shaked, Size: " + heap.size + ", Min: " + (heap.min != null ? heap.min.item.key : "null") + ", Last: " + (heap.last != null ? heap.last.item.info : "null"));
-//	    
-//	    heap.insert(25, "Or");
-//	    System.out.println("Inserted: 25 Or, Size: " + heap.size + ", Min: " + (heap.min != null ? heap.min.item.key : "null") + ", Last: " + (heap.last != null ? heap.last.item.info : "null"));
-//	    
-//	    heap.insert(30, "Shiran");
-//	    System.out.println("Inserted: 30 Shiran, Size: " + heap.size + ", Min: " + (heap.min != null ? heap.min.item.key : "null") + ", Last: " + (heap.last != null ? heap.last.item.info : "null"));
-//	    
-//	    heap.insert(12, "Dolev");
-//	    System.out.println("Inserted: 12 Dolev, Size: " + heap.size + ", Min: " + (heap.min != null ? heap.min.item.key : "null") + ", Last: " + (heap.last != null ? heap.last.item.info : "null"));
-//	    
-//	    heap.insert(5, "Lior");
-//	    System.out.println("Inserted: 5 Lior, Size: " + heap.size + ", Min: " + (heap.min != null ? heap.min.item.key : "null") + ", Last: " + (heap.last != null ? heap.last.item.info : "null"));
-//	    
-//	    heap.insert(21, "Dana");
-//	    System.out.println("Inserted: 21 Dana, Size: " + heap.size + ", Min: " + (heap.min != null ? heap.min.item.key : "null") + ", Last: " + (heap.last != null ? heap.last.item.info : "null"));
-//	    
-//	    heap.insert(8, "Avi");
-//	    System.out.println("Inserted: 8 Avi, Size: " + heap.size + ", Min: " + (heap.min != null ? heap.min.item.key : "null") + ", Last: " + (heap.last != null ? heap.last.item.info : "null"));
-//	    
-//	    heap.insert(19, "Noa");
-//	    System.out.println("Inserted: 19 Noa, Size: " + heap.size + ", Min: " + (heap.min != null ? heap.min.item.key : "null") + ", Last: " + (heap.last != null ? heap.last.item.info : "null"));
-//	    
-//	    heap.insert(14, "Yael");
-//	    System.out.println("Inserted: 14 Yael, Size: " + heap.size + ", Min: " + (heap.min != null ? heap.min.item.key : "null") + ", Last: " + (heap.last != null ? heap.last.item.info : "null"));
-//	    
-//	    heap.insert(6, "Roni");
-//	    System.out.println("Inserted: 6 Roni, Size: " + heap.size + ", Min: " + (heap.min != null ? heap.min.item.key : "null") + ", Last: " + (heap.last != null ? heap.last.item.info : "null"));
-//	    
-//	    heap.insert(28, "Tal");
-//	    System.out.println("Inserted: 28 Tal, Size: " + heap.size + ", Min: " + (heap.min != null ? heap.min.item.key : "null") + ", Last: " + (heap.last != null ? heap.last.item.info : "null"));
-//	    
-//	    heap.insert(4, "Gal");
-//	    System.out.println("Inserted: 4 Gal, Size: " + heap.size + ", Min: " + (heap.min != null ? heap.min.item.key : "null") + ", Last: " + (heap.last != null ? heap.last.item.info : "null"));
-//	    
-//	    heap.insert(22, "Eli");
-//	    System.out.println("Inserted: 22 Eli, Size: " + heap.size + ", Min: " + (heap.min != null ? heap.min.item.key : "null") + ", Last: " + (heap.last != null ? heap.last.item.info : "null"));
-//	    
-//	    heap.insert(11, "Nir");
-//	    System.out.println("Inserted: 11 Nir, Size: " + heap.size + ", Min: " + (heap.min != null ? heap.min.item.key : "null") + ", Last: " + (heap.last != null ? heap.last.item.info : "null"));
-//	    
-//	    heap.insert(2, "Tom");
-//	    System.out.println("Inserted: 2 Tom, Size: " + heap.size + ", Min: " + (heap.min != null ? heap.min.item.key : "null") + ", Last: " + (heap.last != null ? heap.last.item.info : "null"));
-//	    
-//	    heap.insert(9, "Gil");
-//	    System.out.println("Inserted: 9 Gil, Size: " + heap.size + ", Min: " + (heap.min != null ? heap.min.item.key : "null") + ", Last: " + (heap.last != null ? heap.last.item.info : "null"));
-//	    
-//	    heap.insert(26, "Amit");
-//	    System.out.println("Inserted: 26 Amit, Size: " + heap.size + ", Min: " + (heap.min != null ? heap.min.item.key : "null") + ", Last: " + (heap.last != null ? heap.last.item.info : "null"));
-//	    
-//	    heap.insert(15, "Guy");
-//	    System.out.println("Inserted: 15 Guy, Size: " + heap.size + ", Min: " + (heap.min != null ? heap.min.item.key : "null") + ", Last: " + (heap.last != null ? heap.last.item.info : "null"));
-//	    
-//	    heap.insert(24, "Roy");
-//	    System.out.println("Inserted: 24 Roy, Size: " + heap.size + ", Min: " + (heap.min != null ? heap.min.item.key : "null") + ", Last: " + (heap.last != null ? heap.last.item.info : "null"));
-//	    
-//	    heap.insert(7, "Ido");
-//	    System.out.println("Inserted: 7 Ido, Size: " + heap.size + ", Min: " + (heap.min != null ? heap.min.item.key : "null") + ", Last: " + (heap.last != null ? heap.last.item.info : "null"));
-//	    
-//	    heap.insert(13, "Alon");
-//	    System.out.println("Inserted: 13 Alon, Size: " + heap.size + ", Min: " + (heap.min != null ? heap.min.item.key : "null") + ", Last: " + (heap.last != null ? heap.last.item.info : "null"));
-//	    
-//	    heap.insert(16, "Bar");
-//	    System.out.println("Inserted: 16 Bar, Size: " + heap.size + ", Min: " + (heap.min != null ? heap.min.item.key : "null") + ", Last: " + (heap.last != null ? heap.last.item.info : "null"));
-//	    
-//	    heap.insert(29, "Adi");
-//	    System.out.println("Inserted: 29 Adi, Size: " + heap.size + ", Min: " + (heap.min != null ? heap.min.item.key : "null") + ", Last: " + (heap.last != null ? heap.last.item.info : "null"));
-//	    
-//	    heap.insert(0, "Shai");
-//	    System.out.println("Inserted: 0 Shai, Size: " + heap.size + ", Min: " + (heap.min != null ? heap.min.item.key : "null") + ", Last: " + (heap.last != null ? heap.last.item.info : "null"));
-//	    
-//	    heap.insert(20, "Aviad");
-//	    System.out.println("Inserted: 20 Aviad, Size: " + heap.size + ", Min: " + (heap.min != null ? heap.min.item.key : "null") + ", Last: " + (heap.last != null ? heap.last.item.info : "null"));
-//	    
-//	    heap.insert(18, "Eran");
-//	    System.out.println("Inserted: 18 Eran, Size: " + heap.size + ", Min: " + (heap.min != null ? heap.min.item.key : "null") + ", Last: " + (heap.last != null ? heap.last.item.info : "null"));
-//	    
-//	    heap.insert(27, "Lior");
-//	    System.out.println("Inserted: 27 Lior, Size: " + heap.size + ", Min: " + (heap.min != null ? heap.min.item.key : "null") + ", Last: " + (heap.last != null ? heap.last.item.info : "null"));
-//	    
-//	    heap.insert(10, "Neta");
-//	    System.out.println("Inserted: 10 Neta, Size: " + heap.size + ", Min: " + (heap.min != null ? heap.min.item.key : "null") + ", Last: " + (heap.last != null ? heap.last.item.info : "null"));
-//	    
-//	    heap.insert(23, "Yair");
-//	    System.out.println("Inserted: 23 Yair, Size: " + heap.size + ", Min: " + (heap.min != null ? heap.min.item.key : "null") + ", Last: " + (heap.last != null ? heap.last.item.info : "null"));
-//	
-//	
-//		//System.out.println(heap.size + " " + heap.min.item.key + " " + heap.last.item.info);
-//		//System.out.println(heap.last.parent.item.key+ " " + heap.last.next.item.key + " " + heap.last.child.item.key);
-//		
-//
-//	}
+	
 
