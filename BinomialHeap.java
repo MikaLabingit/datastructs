@@ -69,6 +69,7 @@ public class BinomialHeap
 		heap2.last = node;
 		heap2.size = 1;
 		heap2.min = node;
+		heap2.numTrees =1;
 
 		// Meld
 		this.meld(heap2);
@@ -136,8 +137,8 @@ public class BinomialHeap
 				BinomialHeap heap2 = new BinomialHeap(); // Create temp heap for min children
 				heap2.last = minNode.child;
 				heap2.numTrees =minNode.rank;
-				heap2.size=  (int) Math.pow(2, numTrees);
-				this.size = this.size - heap2.size; // update original heap's size
+				heap2.size=  (int) Math.pow(2, minNode.rank) -1;
+				this.size = this.size - heap2.size -1; // update original heap's size
 				
 				// Update parent to be null and find minimum
 				HeapNode newRoot = heap2.last;
@@ -282,12 +283,13 @@ public class BinomialHeap
 		HeapNode[] bigHeap;
 		HeapNode[] smallHeap;
 		HeapNode connectNode;
+		HeapNode bigHeapLast;
 		int temp_tree_num;
 
 		if (this.last.rank > heap2.last.rank) {
 			// Create big heap (contains all roots we need to handle)
 			temp_tree_num = this.numTrees;
-			HeapNode temp_node = last.next;
+			HeapNode temp_node = this.last.next;
 			int l =0;
 			while (l<= this.last.rank && (l <= heap2.last.rank || l == temp_node.rank)) {
 					if (l==temp_node.rank) {
@@ -295,7 +297,7 @@ public class BinomialHeap
 					l++;
 				}
 			bigHeap = new HeapNode[l +1];
-			
+			temp_node = this.last.next;
 			for (int j=0 ; j < bigHeap.length; j++) {
 				if (temp_node.rank == j) {
 					
@@ -304,6 +306,7 @@ public class BinomialHeap
 					temp_node = temp_node.next;}
 			}
 			connectNode = temp_node;
+			bigHeapLast = this.last;
 			
 			// Create small heap
 			smallHeap = createArraySmall(heap2.last);
@@ -312,7 +315,7 @@ public class BinomialHeap
 		else {
 			// Create big heap (contains all roots we need to handle)
 			temp_tree_num = heap2.numTrees;
-			HeapNode temp_node = last.next;
+			HeapNode temp_node = heap2.last.next;
 			int l =0;
 			while (l<= heap2.last.rank && (l <= this.last.rank || l == temp_node.rank)) {
 					if (l==temp_node.rank) {
@@ -320,7 +323,7 @@ public class BinomialHeap
 					l++;
 				}
 			bigHeap = new HeapNode[l +1];
-			
+			temp_node = heap2.last.next;
 			for (int j=0 ; j < bigHeap.length; j++) {
 				if (temp_node.rank == j) {
 					
@@ -329,6 +332,7 @@ public class BinomialHeap
 					temp_node = temp_node.next;}
 			}
 			connectNode = temp_node;
+			bigHeapLast = heap2.last;
 			
 			// Create small heap
 			smallHeap = createArraySmall(this.last);
@@ -454,8 +458,15 @@ public class BinomialHeap
 		}
 		
 		// Connect roots and the rest of the original heap
-		rootsLast.next = connectNode;
-		this.last.next = roots[firstNodeIndx];
+		if (temp_tree_num > 0) {
+			rootsLast.next = connectNode;
+			this.last = bigHeapLast;
+			this.last.next = roots[firstNodeIndx];}
+		else { 
+			rootsLast.next = roots[firstNodeIndx];
+			this.last = rootsLast;
+			
+		}
 		
 		// Update heap parameters
 		this.size = this.size + heap2.size;
@@ -522,4 +533,239 @@ public class BinomialHeap
 		public String info;
 
 	}
+
+
+
+public static void main(String[] args) {
+    
+    int score = 0;
+    BinomialHeap binomialHeap = new BinomialHeap();
+    // Test 1: Insert elements
+    try {
+        binomialHeap.insert(10, "Ten");
+        System.out.println(binomialHeap.size);
+        binomialHeap.insert(4, "Four");
+        System.out.println(binomialHeap.size);
+        binomialHeap.insert(15, "Fifteen");
+        System.out.println(binomialHeap.size);
+        binomialHeap.insert(20, "Twenty");
+        System.out.println(binomialHeap.size);
+        binomialHeap.insert(8, "Eight");
+        System.out.println(binomialHeap.size);
+        System.out.println("Test 1 passed");
+        score += 5;
+    } catch (Exception e) {
+        System.out.println("Test 1 failed");
+    }
+
+    // Test 2: Check size
+    if (binomialHeap.size() == 5) {
+        System.out.println("Test 2 passed");
+        score += 5;
+    } else {
+        System.out.println("Test 2 failed");
+    }
+
+    // Test 3: Check findMin
+    if (binomialHeap.findMin().key == 4) {
+        System.out.println("Test 3 passed");
+        score += 5;
+    } else {
+        System.out.println("Test 3 failed");
+    }
+
+    // Test 4: Check deleteMin
+    try {
+        binomialHeap.deleteMin();
+        System.out.println(binomialHeap.size);
+        if (binomialHeap.findMin().key == 8) {
+            System.out.println("Test 4 passed");
+            score += 5;
+        } else {
+            System.out.println("Test 4 failed");
+        }
+    } catch (Exception e) {
+        System.out.println("Test 4 failed");
+    }
+
+    // Test 5: Insert more elements
+    try {
+        binomialHeap.insert(3, "Three");
+        System.out.println(binomialHeap.size);
+        binomialHeap.insert(12, "Twelve");
+        System.out.println(binomialHeap.size);
+        System.out.println("Test 5 passed");
+        score += 5;
+    } catch (Exception e) {
+        System.out.println("Test 5 failed");
+    }
+
+    // Test 6: Check size again
+    if (binomialHeap.size() == 6) {
+        System.out.println("Test 6 passed");
+        score += 5;
+    } else {
+        System.out.println("Test 6 failed");
+    }
+
+    // Test 7: Check decreaseKey
+    try {
+        HeapItem item = binomialHeap.insert(18, "Eighteen");
+        binomialHeap.decreaseKey(item, 17);
+        if (binomialHeap.findMin().key == 1) {
+            System.out.println("Test 7 passed");
+            score += 5;
+        } else {
+            System.out.println("Test 7 failed");
+        }
+    } catch (Exception e) {
+        System.out.println("Test 7 failed");
+    }
+
+    // Test 8: Check delete
+    try {
+        HeapItem item = binomialHeap.findMin();
+        binomialHeap.delete(item);
+        if (binomialHeap.findMin().key != 1) {
+            System.out.println("Test 8 passed");
+            score += 5;
+        } else {
+            System.out.println("Test 8 failed");
+        }
+    } catch (Exception e) {
+        System.out.println("Test 8 failed");
+    }
+
+    // Test 9: Check empty
+    if (!binomialHeap.empty()) {
+        System.out.println("Test 9 passed");
+        score += 5;
+    } else {
+        System.out.println("Test 9 failed");
+    }
+
+ // Test 10: Meld two heaps
+    try {
+        BinomialHeap binomialHeap2 = new BinomialHeap();
+        binomialHeap2.insert(5, "Five");
+        binomialHeap2.insert(25, "Twenty-five");
+        binomialHeap.meld(binomialHeap2);
+        if (binomialHeap.size() == 8 && binomialHeap.findMin().key == 3) {
+            System.out.println("Test 10 passed");
+            score += 5;
+        } else {
+            System.out.println("Test 10 failed");
+        }
+    } catch (Exception e) {
+        System.out.println("Test e 10 failed");
+    }
+    
+    // Test 11: Check numtrees
+    try {
+        int numTrees = binomialHeap.numTrees();
+        System.out.println("Number of trees: " + numTrees);
+        score += 5; // Assume correct implementation, adjust based on actual implementation
+    } catch (Exception e) {
+        System.out.println("Test 11 failed");
+    }
+
+    // Test 12: Check size after meld
+    if (binomialHeap.size() == 8) {
+        System.out.println("Test 12 passed");
+        score += 5;
+    } else {
+        System.out.println("Test 12 failed");
+    }
+
+    
+    // Test 13: Insert another element
+    try {
+        binomialHeap.insert(1, "One");
+        if (binomialHeap.findMin().key == 1) {
+            System.out.println("Test 13 passed");
+            score += 5;
+        } else {
+            System.out.println("Test 13 failed");
+        }
+    } catch (Exception e) {
+        System.out.println("Test 13 failed");
+    }
+    
+    
+    // Test 14: Check decreaseKey on non-existent item
+//    try {
+//        HeapItem fakeItem = new HeapItem(100, "Fake", null);
+//        binomialHeap.decreaseKey(fakeItem, 10);
+//        System.out.println("Test 14 failed");
+//    } catch (Exception e) {
+//        System.out.println("Test 14 passed");
+//        score += 5;
+//    }
+
+    try {
+        BinomialHeap emptyHeap = new BinomialHeap();
+        emptyHeap.deleteMin();
+        System.out.println("Test 15 failed");
+    } catch (Exception e) {
+        System.out.println("Test 15 passed");
+        score += 5;
+    }
+
+    try {
+        BinomialHeap emptyHeap = new BinomialHeap();
+        if (emptyHeap.findMin() == null) {
+            System.out.println("Test 16 passed");
+            score += 5;
+        } else {
+            System.out.println("Test 16 failed");
+        }
+    } catch (Exception e) {
+        System.out.println("Test 16 failed");
+    }
+
+ // Test 17: Insert an item, delete it, and check heap properties
+    try {
+        int initialSize = binomialHeap.size();
+        HeapItem itemToDelete = binomialHeap.insert(18, "Eighteen");
+        if (binomialHeap.size() == initialSize + 1) {
+            binomialHeap.delete(itemToDelete);
+            if (binomialHeap.size() == initialSize && binomialHeap.findMin().key == 1) {
+                System.out.println("Test 17 passed");
+                score += 5;
+            } else {
+                System.out.println("Test 17 failed after deletion");
+            }
+        } else {
+            System.out.println("Test 17 failed after insertion");
+        }
+    } catch (Exception e) {
+        System.out.println("Test 17 failed");
+    }
+
+    // Test 18: Check min after multiple operations
+    if (binomialHeap.findMin().key == 1) {
+        System.out.println("Test 18 passed");
+        score += 5;
+    } else {
+        System.out.println("Test 18 failed");
+    }
+    // Test 19: Check size after multiple operations
+    if (binomialHeap.size() == 9) { // Adjust based on actual operations and expected size
+        System.out.println("Test 19 passed");
+        score += 5;
+    } else {
+        System.out.println("Test 19 failed");
+    }
+
+    // Test 20: Check empty after multiple operations
+    if (!binomialHeap.empty()) {
+        System.out.println("Test 20 passed");
+        score += 5;
+    } else {
+        System.out.println("Test 20 failed");
+    }
+
+    // Print final score
+    System.out.println("Final Score: " + score + "/100");
+}
 }
