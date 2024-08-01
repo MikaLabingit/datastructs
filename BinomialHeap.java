@@ -117,15 +117,36 @@ public class BinomialHeap
 			if (this.last == this.min) {
 				this.last = node;
 			}
+			
+			// update treenum and new min for current heap, size will be changed later
+			this.min =this.last;
+			HeapNode temp_node = this.last; 
+			
+			while (temp_node.next != this.last) {
+				if (temp_node.item.key < this.min.item.key) {
+					this.min = temp_node;
+				}
+				temp_node = temp_node.next;
+			}
+			this.numTrees -= 1;
+			
 
 			// Min node has children
 			if (minNode.child != null) {
 				BinomialHeap heap2 = new BinomialHeap(); // Create temp heap for min children
 				heap2.last = minNode.child;
-				// Update parent to be null
+				heap2.numTrees =minNode.rank;
+				heap2.size=  (int) Math.pow(2, numTrees);
+				this.size = this.size - heap2.size; // update original heap's size
+				
+				// Update parent to be null and find minimum
 				HeapNode newRoot = heap2.last;
+				heap2.min = heap2.last;
 				while (newRoot.parent != null) {
 					newRoot.parent = null;
+					if (newRoot.item.key < heap2.min.item.key) {
+						heap2.min = newRoot;
+					}
 					newRoot = newRoot.next;
 				}
 				this.meld(heap2);
@@ -208,7 +229,7 @@ public class BinomialHeap
 	 * Meld the heap with heap2
 	 *
 	 */
-	public HeapNode[] createArray(HeapNode last) {
+	public HeapNode[] createArraySmall(HeapNode last) {
 		HeapNode[] roots = new HeapNode[last.rank +1];
 		HeapNode node = last.next;
 		for (int i=0 ; i< roots.length; i++) {
@@ -219,6 +240,28 @@ public class BinomialHeap
 		}
 		return roots;
 	}
+	
+	public HeapNode[] createArrayBig(HeapNode last,int minRank) {
+		int temp_tree_num = this.numTrees;
+		HeapNode node = last.next;
+		int i =0;
+		while (i<= last.rank && (i <= minRank || i == node.rank)) {
+				if (i==node.rank) {
+					node = node.next;}
+				i++;
+			}
+		HeapNode[] roots = new HeapNode[i +1];
+		for (int j=0 ; j < roots.length; j++) {
+			if (node.rank == j) {
+				
+				roots[j] = node;
+				temp_tree_num -= 1;
+				node = node.next;
+			}
+		}
+		return roots;
+	}
+
 
 	public void meld(BinomialHeap heap2)
 	{
@@ -236,20 +279,63 @@ public class BinomialHeap
 		int minRank = Math.min(this.last.rank, heap2.last.rank);
 		int maxRank = Math.max(this.last.rank, heap2.last.rank);
 		HeapNode carry = null;
-		HeapNode[] roots = new HeapNode[maxRank + 2];
 		HeapNode[] bigHeap;
 		HeapNode[] smallHeap;
+		HeapNode connectNode;
+		int temp_tree_num;
 
-
-		if (Math.max(this.last.rank, heap2.last.rank) == this.last.rank) {
-			bigHeap = createArray(this.last);
-			smallHeap = createArray(heap2.last);
+		if (this.last.rank > heap2.last.rank) {
+			// Create big heap (contains all roots we need to handle)
+			temp_tree_num = this.numTrees;
+			HeapNode temp_node = last.next;
+			int l =0;
+			while (l<= this.last.rank && (l <= heap2.last.rank || l == temp_node.rank)) {
+					if (l==temp_node.rank) {
+						temp_node = temp_node.next;}
+					l++;
+				}
+			bigHeap = new HeapNode[l +1];
+			
+			for (int j=0 ; j < bigHeap.length; j++) {
+				if (temp_node.rank == j) {
+					
+					bigHeap[j] = temp_node;
+					temp_tree_num -= 1;
+					temp_node = temp_node.next;}
+			}
+			connectNode = temp_node;
+			
+			// Create small heap
+			smallHeap = createArraySmall(heap2.last);
 		}
 
 		else {
-			bigHeap = createArray(heap2.last);
-			smallHeap = createArray(this.last);
+			// Create big heap (contains all roots we need to handle)
+			temp_tree_num = heap2.numTrees;
+			HeapNode temp_node = last.next;
+			int l =0;
+			while (l<= heap2.last.rank && (l <= this.last.rank || l == temp_node.rank)) {
+					if (l==temp_node.rank) {
+						temp_node = temp_node.next;}
+					l++;
+				}
+			bigHeap = new HeapNode[l +1];
+			
+			for (int j=0 ; j < bigHeap.length; j++) {
+				if (temp_node.rank == j) {
+					
+					bigHeap[j] = temp_node;
+					temp_tree_num -= 1;
+					temp_node = temp_node.next;}
+			}
+			connectNode = temp_node;
+			
+			// Create small heap
+			smallHeap = createArraySmall(this.last);
 		}
+		HeapNode[] roots = new HeapNode[bigHeap.length + 1];
+		
+
 		int i;
 		// Iterate over ranks of minimal degree tree
 		for ( i = 0; i <= minRank; i++) {
@@ -330,28 +416,28 @@ public class BinomialHeap
 				j++;
 			}
 			roots[j] = carry; // carry will not be used anymore
-			j += 1;
+			
 		}
-
-		// No more carry. Just insert the rest of big stack trees as is
-		for (int k = j; k <= maxRank; k++) {
-			if (bigHeap[k] != null) {
+		// No more carry. Just insert the rest of bigHeap trees to roots
+		else {
+			for (int k = j; k < bigHeap.length; k++) {
+				if (bigHeap[k] != null) {
 				roots[k] = bigHeap[k];
 
+				}
 			}
 		}
+				
 		// Create heap
 		int curr = 0;
-		this.numTrees = 1;
 
 		while (roots[curr] == null) {
 			curr += 1;
 		}
 		int firstNodeIndx = curr;
 		HeapNode prev = roots[curr];
-		this.size = (int) Math.pow(2 , roots[curr].rank);
-		this.min = roots[curr];
-		this.last = prev;
+		HeapNode rootsLast = prev;
+		int numTrees = 1;
 
 		curr += 1;
 
@@ -359,21 +445,25 @@ public class BinomialHeap
 			if (roots[curr] != null) {
 				prev.next = roots[curr];
 				prev = prev.next;
-				this.last = roots[curr];
-				this.size += (int) Math.pow(2 , roots[curr].rank);
-				this.numTrees += 1;
+				rootsLast = roots[curr];
+				numTrees += 1;
 
-				if (this.min.item.key > roots[curr].item.key) {
-					this.min = roots[curr];
-				}
+				
 			}
 			curr += 1;
 		}
-
-		if (roots[curr -1]!=null) {
-			roots[curr -1].next = roots[firstNodeIndx];}
-		else {roots[curr -2].next = roots[firstNodeIndx];}
-
+		
+		// Connect roots and the rest of the original heap
+		rootsLast.next = connectNode;
+		this.last.next = roots[firstNodeIndx];
+		
+		// Update heap parameters
+		this.size = this.size + heap2.size;
+		this.numTrees = temp_tree_num + numTrees;
+		if (this.min.item.key > heap2.min.item.key) {
+			this.min = heap2.min;
+		}
+	
 		return;
 	}
 
